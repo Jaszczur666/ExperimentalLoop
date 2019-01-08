@@ -8,6 +8,7 @@ using System.Text;
 
 public class ELoop
 {
+    private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     //public delegate void ScanEventHandler(string command);
     //public delegate void GotoEventHandler(string command);
     //public delegate void SleepEventHandler(int duration);
@@ -54,7 +55,7 @@ public class ELoop
     }
     public void goto1(string com)
     {
-        Console.WriteLine("Doleciawszy ja do wejścia we goto ");
+        log.Debug("Entere GOTO with param "+com);//Console.WriteLine("Doleciawszy ja do wejścia we goto ");
         Mono1.Goto(com);
         if (!Mono1.repeatNeeded)
         {
@@ -74,7 +75,8 @@ public class ELoop
         Tektro.curve curve;
         Oscyloskop.dumpList(out curve);
         curve.exc = currWL;
-        Console.WriteLine("getdecay:curr WL" + currWL.ToString());
+        //Console.WriteLine
+        log.Debug("getdecay:curr WL" + currWL.ToString());
         decaymap.Add(curve);
         OnDataAvailable();
         Finito();
@@ -108,7 +110,7 @@ public class ELoop
     }
     public void Finito()
     {
-        Console.WriteLine("Task done, processing next job");
+        log.Info("Task done, processing next job");
         loop();// ProcessMessages();
     }
     public void initMono1(string pname)
@@ -127,7 +129,7 @@ public class ELoop
     public void PostMessage(string mes)
     {
         Messages.Add(mes);
-        Console.WriteLine("Adding message " + mes);
+        log.Info("Adding message " + mes);
     }
     public void Parse(string command)
     {
@@ -176,7 +178,7 @@ public class ELoop
                 }
             case "dump":
                 {
-                    Console.WriteLine("Flow control, going into dump decay map ");
+                    log.Debug("Flow control, going into dump decay map ");
                     DumpDecayMap();
                     break;
                 }
@@ -192,47 +194,53 @@ public class ELoop
 
     private void DumpDecayMap()
     {
-        Console.WriteLine("Entered dump subroutine");
+        log.Info("Entered dump subroutine");
         string textdump = "";
-        string path = @"./dump.txt";
+        string uniq = DateTime.Now.ToString("yyyyMMddHHmmss");
+        string path = @"./" + uniq + "dump.txt";
+        log.Debug("Data file path " + path);        
         System.Diagnostics.Stopwatch sw=new System.Diagnostics.Stopwatch();
         sw.Start();
         int numCurves = decaymap.Count;
-        Console.WriteLine("Dump numcurves " + numCurves);
+        //Console.WriteLine("Dump numcurves " + numCurves);
+        log.Info("Dump numcurves " + numCurves);
         int pointsPerCurve = decaymap[0].decay.Count;
-        Console.WriteLine("Dump pointspercurve " + pointsPerCurve);
+        //Console.WriteLine("Dump pointspercurve " + pointsPerCurve);
+        log.Info("Dump pointspercurve " + pointsPerCurve);
         if ((numCurves > 0) && (pointsPerCurve > 0))
         {
             textdump += "-0 ";
             for (int k = 0; k < numCurves; k++) textdump += decaymap[k].exc+" ";
             textdump += "\r\n";
-            Console.WriteLine("Dump, first line done. Writing data: ");
+            log.Debug("Dump, first line done. Writing data: ");
             for (int j = 0; j < pointsPerCurve; j++)
             {
-                textdump += decaymap[0].decay[j].x + " ";
-                for (int k = 0; k < numCurves-1; k++)
+                textdump += decaymap[0].decay[j].x.ToString("g7", CultureInfo.InvariantCulture) + " ";
+                for (int k = 0; k < numCurves; k++)
                 {
-                    textdump += decaymap[k].decay[j].y.ToString() + " ";                    
+                    textdump += decaymap[k].decay[j].y.ToString("g9", CultureInfo.InvariantCulture) + " ";                    
                 }
                 textdump += "\r\n";
                 System.IO.File.AppendAllText(path, textdump);
                 textdump = "";
-                if ((j%50)==0)Console.WriteLine("Dump: "+sw.ElapsedMilliseconds/1e3+ " row j is written, j= "+ j);
+                if ((j%50)==0)log.Info("Dump: "+ (sw.ElapsedMilliseconds / 1e3).ToString("G4", CultureInfo.InvariantCulture) + " row j is written, j= "+ j);
             }
-            Console.WriteLine("Przejszło");
+            log.Info("Dump: " + (sw.ElapsedMilliseconds / 1e3).ToString("G4", CultureInfo.InvariantCulture) + " Finished writing file");
             //System.IO.File.WriteAllText(@"./dump.txt", textdump);
-            Console.WriteLine("Dump finished");
+            //Console.WriteLine("Dump finished");
         }
         Finito();
     }
 
     public void ProcessMessages()
     {
-        Console.WriteLine(Messages.Count);
+        //Console.WriteLine(Messages.Count);
+        log.Debug(Messages.Count + " message(s) still in queue");
         if (Messages.Count > 0)
         {
             string msg = Messages[0];
-            Console.WriteLine("Processing command "+ msg);
+            //Console.WriteLine("Processing command "+ msg);
+            log.Debug("Processing command " + msg);
             Messages.RemoveAt(0);
             //Console.WriteLine(msg);
             Parse(msg);
@@ -240,7 +248,8 @@ public class ELoop
         }
     }
     public void fakedecay() {
-        Tektro.curve fakedec;
+        Tektro.curve fakedec=new Tektro.curve();
+        Random random = new Random();
         for (int j = 0; j < 200; j++)
         {
             fakedec = new Tektro.curve();
@@ -248,18 +257,20 @@ public class ELoop
             {
                 Tektro.punkt fakepoint = new Tektro.punkt();
                 fakepoint.x = i*1e-6;
-                fakepoint.y = 10 - i;
+                fakepoint.y =3e-5*random.NextDouble()+1e-6*Math.Sin(i/150.0);
                 fakedec.decay.Add(fakepoint);
-                fakedec.exc = 650+j;
+                
             }
+            fakedec.exc = 650 + j;
+            //log.Info("Faked curve " + j);
             decaymap.Add(fakedec);
         }
-        
+        log.Debug("Just faked " + decaymap.Count + " curves");
 
     }
 
     public void loop() {
-        Console.WriteLine("Entered into a loop on the thread");
+        log.Debug("Entered into a loop on the thread");
         //Console.WriteLine(ThreadPool.QueueUserWorkItem(delegate { ProcessMessages(); }));
         Task.Factory.StartNew(delegate { ProcessMessages(); });
     }
