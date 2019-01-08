@@ -14,7 +14,7 @@ namespace ExperimentalLoopTester
             
             ELoop petla = new ELoop();
             petla.initMono1("COM1");
-            log.Info("Info test");
+            log.Info("Program started");
             petla.fakedecay();
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
@@ -23,8 +23,8 @@ namespace ExperimentalLoopTester
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
-            petla.PostMessage("dump");
-            //petla.PostMessage("scan1 123,6");
+            //petla.PostMessage("dump");
+            petla.PostMessage("scan1 123,6");
             //petla.PostMessage("wait 4e3");
             petla.PostMessage("wait 2000");
 
