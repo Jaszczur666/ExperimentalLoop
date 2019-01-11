@@ -9,24 +9,24 @@ using System.Text;
 public class ELoop
 {
     private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    //public delegate void ScanEventHandler(string command);
-    //public delegate void GotoEventHandler(string command);
-    //public delegate void SleepEventHandler(int duration);
-    //public delegate void FinitoEventHandler();
     public delegate void DataAvailableHandler();
+    public delegate void ExperimentFinishedHandler();
     private Monochromator Mono1;
     private Monochromator Mono2;
     private Tektro.Scope Oscyloskop;
+    private string SampleLabel;
     //public event ScanEventHandler ScanEvent1;
     //public event ScanEventHandler ScanEvent2;
     //public event SleepEventHandler SleepEvent;
     //public event GotoEventHandler gotoEvent1;
     //public event FinitoEventHandler Finito;
     public event DataAvailableHandler OnDataAvailable;
+    public event ExperimentFinishedHandler OnExperimentFinished;
     private List<string> Messages;
     private List<Tektro.curve> decaymap;
     private double currWL;
     public int count { get => Messages.Count; }
+    public void SetSampleLabel(string label) { SampleLabel = label; }
     public ELoop()
     {
         Messages = new List<string>();
@@ -197,7 +197,10 @@ public class ELoop
         log.Info("Entered dump subroutine");
         string textdump = "";
         string uniq = DateTime.Now.ToString("yyyyMMddHHmmss");
-        string path = @"./" + uniq + "dump.txt";
+        log.Info("Sample label is "+SampleLabel);
+        if (SampleLabel != "") uniq = SampleLabel;
+        
+        string path = @"./" + "dump" + uniq+ ".txt";
         log.Debug("Data file path " + path);        
         System.Diagnostics.Stopwatch sw=new System.Diagnostics.Stopwatch();
         sw.Start();
@@ -210,7 +213,11 @@ public class ELoop
         if ((numCurves > 0) && (pointsPerCurve > 0))
         {
             textdump += "-0 ";
-            for (int k = 0; k < numCurves; k++) textdump += decaymap[k].exc+" ";
+            for (int k = 0; k < numCurves; k++)
+            {
+                textdump += decaymap[k].exc.ToString("g7", CultureInfo.InvariantCulture) + " ";
+                //log.Debug("Curve " + k + " has " + decaymap[k].decay.Count + " points");
+            }
             textdump += "\r\n";
             log.Debug("Dump, first line done. Writing data: ");
             for (int j = 0; j < pointsPerCurve; j++)
@@ -218,7 +225,7 @@ public class ELoop
                 textdump += decaymap[0].decay[j].x.ToString("g7", CultureInfo.InvariantCulture) + " ";
                 for (int k = 0; k < numCurves; k++)
                 {
-                    textdump += decaymap[k].decay[j].y.ToString("g9", CultureInfo.InvariantCulture) + " ";                    
+                    textdump += decaymap[k].decay[j].y.ToString("g6", CultureInfo.InvariantCulture) + " ";                    
                 }
                 textdump += "\r\n";
                 System.IO.File.AppendAllText(path, textdump);
@@ -246,11 +253,12 @@ public class ELoop
             Parse(msg);
 
         }
+        else OnExperimentFinished();
     }
     public void fakedecay() {
         Tektro.curve fakedec=new Tektro.curve();
         Random random = new Random();
-        for (int j = 0; j < 200; j++)
+        for (int j = 0; j < 2000; j++)
         {
             fakedec = new Tektro.curve();
             for (int i = 0; i < 1000; i++)
@@ -261,7 +269,7 @@ public class ELoop
                 fakedec.decay.Add(fakepoint);
                 
             }
-            fakedec.exc = 650 + j;
+            fakedec.exc = 650 + j/10.0;
             //log.Info("Faked curve " + j);
             decaymap.Add(fakedec);
         }
