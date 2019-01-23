@@ -13,9 +13,10 @@ namespace ExperimentalLoopTester
         {
             
             ELoop petla = new ELoop();
-            petla.initMono1("COM1");
+            petla.initMono1("COM3");
             log.Info("Program started");
             petla.fakedecay();
+            petla.SetSampleLabel("");
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
@@ -23,13 +24,14 @@ namespace ExperimentalLoopTester
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
             petla.PostMessage("wait 10");
-            petla.PostMessage("dump");
-            //petla.PostMessage("scan1 123,6");
-            //petla.PostMessage("wait 4e3");
-            petla.PostMessage("wait 2000");
+            //petla.PostMessage("dump");
+            petla.PostMessage("scan1 123,6");
+            petla.PostMessage("goto1 134.5");
+            petla.PostMessage("wait 4e3");
+            //petla.PostMessage("wait 20000");
 
             petla.loop();
-            while (petla.count > 0) ;
+            while (petla.count > 0)Thread.Sleep(1000);
             //Thread.Sleep((int)30e3);
             /*
             petla.ProcessMessages();
