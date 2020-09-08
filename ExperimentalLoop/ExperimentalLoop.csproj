@@ -4,31 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D6128049-B807-42A6-B7C7-239BDBC8C967}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>ExperimentalLoopTester</RootNamespace>
-    <AssemblyName>ExperimentalLoopTester</AssemblyName>
+    <ProjectGuid>{481272CA-DF07-4CE3-9397-D65B0F8CD104}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExperimentalLoop</RootNamespace>
+    <AssemblyName>ExperimentalLoop</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -38,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -46,20 +30,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>ExperimentalLoopTester.Program</StartupObject>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\GDMGrapher\packages\log4net.2.0.8\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\GDMGrapher\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,25 +43,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="ELoop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExperimentalLoop\ExperimentalLoop.csproj">
-      <Project>{481272ca-df07-4ce3-9397-d65b0f8cd104}</Project>
-      <Name>ExperimentalLoop</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\GDMGrapher\boxCarLib\boxCarLib.csproj">
+      <Project>{66a60e50-21fb-4bf9-8d46-d34e84d1de14}</Project>
+      <Name>boxCarLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GDMLibrary\GDMLibrary.csproj">
+      <Project>{0e306034-4126-49e7-b85d-6dccf455cbc5}</Project>
+      <Name>GDMLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Monochromator\Monochromator\Monochromator.csproj">
+      <Project>{b3cc3e44-732b-4316-871d-5c201d18d9d7}</Project>
+      <Name>Monochromator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tektro\Tektro\Tektro.csproj">
+      <Project>{78b41af5-989a-437d-913a-4758304f6455}</Project>
+      <Name>Tektro</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
