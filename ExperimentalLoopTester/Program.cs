@@ -18,16 +18,19 @@ namespace ExperimentalLoopTester
             log.Info("Program started");
             //petla.OnDataAvailable += gotData;
             //petla.fakedecay();
-            petla.InitScope();
+            //petla.InitScope();
             petla.SetCurrentWaveNumber(12345);
             //petla.fakedecay();
-            petla.PostMessage("decay");
-            petla.PostMessage("decay");
-            petla.PostMessage("decay");
+            //petla.PostMessage("decay");
+            //petla.PostMessage("decay");
+            //            petla.PostMessage("decay");
             //log.Info("Znowu w mainie");
             //petla.SetSampleLabel("");
-            petla.PostMessage(Devices.none, "dump");
-            //petla.InitBox("COM4");
+            petla.FakeSpectrum();
+            petla.PostMessage("dumpspec");
+            string path = @"H:\Wuje muje\dzikie wunsze\test.txt";
+            petla.PostMessage("dumpspec "+path);
+            //petla.InitBox("COM1");
             //
             petla.PostMessage("wait 4e1");
             //petla.PostMessage("wait 20000");

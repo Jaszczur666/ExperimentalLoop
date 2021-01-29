@@ -25,6 +25,7 @@ public class ELoop: IDisposable
     private readonly Tektro.Scope Oscyloskop;
     private string SampleLabel="";
     private long pings = 0;
+    private bool btimerStarted = false;
     public double pingspersecond()
     {
         log.Debug("Pings " + pings + "  in " + 1e-3 * pingometer.ElapsedMilliseconds + " seconds");
@@ -40,7 +41,7 @@ public class ELoop: IDisposable
     private double currWL1,currWL2,currWN;
     public Tektro.punkt lastpoint;
     public bool isWavenumber=false;
-    public System.Diagnostics.Stopwatch pingometer;
+    private System.Diagnostics.Stopwatch pingometer;
     public int Count { get => Messages.Count; }
     public void SetSampleLabel(string label) { SampleLabel = label; }
     public ELoop()
@@ -260,10 +261,21 @@ public class ELoop: IDisposable
                             }
                         case "dumpspec":
                             {
-                                if (comarg.Length > 1) DumpSpectrum(comarg[1]);
-                                else DumpSpectrum();
-                                    
+                                if (comarg.Length > 1)
+                                {
+                                    string path="";
+                                    for (int i= 1;i<comarg.Length;i++) path += comarg[i]+" ";
+                                    log.Info("Dumping to file" + path);
+                                    DumpSpectrum(path);
 
+                                }
+                                else
+                                {
+                                    log.Info("Dumping spectrum no filename provided ");
+                                    DumpSpectrum();
+                                }
+
+                                Finito();
                                 break;
                             }
                         case "rstscope":
@@ -319,6 +331,28 @@ public class ELoop: IDisposable
         }
         System.IO.File.WriteAllText(path, textdump);
     }
+    public void FakeSpectrum()
+    {
+        Tektro.punkt fakepoint = new Tektro.punkt(0, 1);
+        spectrum.Add(fakepoint);
+        fakepoint = new Tektro.punkt(0, 1)
+        {
+            x = 100,
+            y = 1.12
+        };
+        spectrum.Add(fakepoint);
+        fakepoint = new Tektro.punkt(0, 1);
+        fakepoint.y += 0.12;
+        spectrum.Add(fakepoint);
+        fakepoint = new Tektro.punkt(0, 1);
+        fakepoint.y += 0.22;
+        spectrum.Add(fakepoint);
+        fakepoint = new Tektro.punkt(0, 1);
+        fakepoint.y += 0.02;
+        spectrum.Add(fakepoint);
+
+
+    }
     private void DumpDecayMap()
     {
         CultureInfo cul = CultureInfo.InvariantCulture;
@@ -372,12 +406,17 @@ public class ELoop: IDisposable
         if (Messages.Count > 0)
         {
             Command msg = Messages[0];
-            log.Info("Processing command " + msg.command +" for device "+msg.device);
+            log.Info("Processing command " + msg.command + " for device " + msg.device);
             Messages.RemoveAt(0);
             Parse(msg);
 
         }
-        else OnExperimentFinished?.Invoke();
+        else
+        {
+            OnExperimentFinished?.Invoke();
+            log.Info("Experiment finished");
+            log.Info("Pingometer stats " + pingometer.Elapsed + " " + pings + " rate = "+pingspersecond());
+        }
     }
     public void fakedecay()
     {
@@ -407,6 +446,11 @@ public class ELoop: IDisposable
     public void loop()
     {
         log.Debug("Entered into a loop on the thread");
+        if (!btimerStarted)
+        {
+            pingometer.Restart();
+            btimerStarted = true;
+        }
         Task.Factory.StartNew(delegate { ProcessMessages(); });
     }
 
